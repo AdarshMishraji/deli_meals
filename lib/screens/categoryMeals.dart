@@ -1,47 +1,38 @@
 import 'package:flutter/material.dart';
 
+import '../store/index.dart';
 import '../models/meal.dart';
+import '../models/store.dart';
 import '../screens/mealDetail.dart';
 
 class CategoryMealsScreen extends StatefulWidget {
   static const String routeName = '/category-meal';
 
-  final List<Meal> availableMeals;
-
-  const CategoryMealsScreen({Key? key, required this.availableMeals})
-      : super(key: key);
+  const CategoryMealsScreen({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<CategoryMealsScreen> createState() => _CategoryMealsScreenState();
 }
 
 class _CategoryMealsScreenState extends State<CategoryMealsScreen> {
-  String? categoryTitle;
-  List<Meal>? categoryMeals;
-  bool loadedInitData = false;
-
-  @override
-  void didChangeDependencies() {
-    if (!loadedInitData) {
-      final routeArgs =
-          ModalRoute.of(context)?.settings.arguments as Map<String, String>;
-      categoryTitle = routeArgs['title'];
-      categoryMeals = widget.availableMeals
-          .where((element) => element.categories.contains(routeArgs['id']))
-          .toList();
-      loadedInitData = true;
-    }
-    super.didChangeDependencies();
-  }
-
-  void _removeMeal(String mealId) {
+  void removeMeal(String mealId, Store store) {
     setState(() {
-      categoryMeals?.removeWhere((element) => element.id == mealId);
+      store.availableMeals!.removeWhere((element) => element.id == mealId);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final routeArgs =
+        ModalRoute.of(context)?.settings.arguments as Map<String, String>;
+    final String? categoryTitle = routeArgs['title'];
+    final store = StoreContainer.of(context);
+    final List<Meal>? categoryMeals = store.availableMeals
+        ?.where((element) => element.categories.contains(routeArgs['id']))
+        .toList();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(categoryTitle ?? ''),
@@ -52,8 +43,9 @@ class _CategoryMealsScreenState extends State<CategoryMealsScreen> {
                 itemCount: categoryMeals?.length,
                 itemBuilder: (_, index) {
                   return CategoryMealItem(
-                    meal: categoryMeals![index],
-                    removeMeal: _removeMeal,
+                    key: ValueKey(categoryMeals![index].id),
+                    meal: categoryMeals[index],
+                    removeMeal: (mealId) => removeMeal(mealId, store),
                   );
                 },
               )

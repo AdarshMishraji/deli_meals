@@ -1,53 +1,25 @@
-import 'package:deli_meals/screens/main.dart';
+import '../screens/main.dart';
+import '../store/index.dart';
 import 'package:flutter/material.dart';
 
 class FiltersScreen extends StatefulWidget {
   static const String routeName = '/filters';
 
-  final Function saveFilters;
-  final Map<String, bool> appliedFilters;
-
-  const FiltersScreen(
-      {Key? key, required this.saveFilters, required this.appliedFilters})
-      : super(key: key);
+  const FiltersScreen({Key? key}) : super(key: key);
 
   @override
   State<FiltersScreen> createState() => _FiltersScreenState();
 }
 
 class _FiltersScreenState extends State<FiltersScreen> {
-  bool _glutenFree = false,
-      _lactoseFree = false,
-      _vegan = false,
-      _vegetarian = false;
-
-  @override
-  void initState() {
-    _glutenFree = widget.appliedFilters['gluten-free'] ?? false;
-    _lactoseFree = widget.appliedFilters['lactose-free'] ?? false;
-    _vegan = widget.appliedFilters['vegan'] ?? false;
-    _vegetarian = widget.appliedFilters['vegetarian'] ?? false;
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
+    final storeProvider = StoreContainer.of(context);
+    final Map<String, bool>? appliedFilters = storeProvider.appliedFilters;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Filters'),
-        actions: [
-          IconButton(
-              onPressed: () {
-                final Map<String, bool> filters = {
-                  'gluten-free': _glutenFree,
-                  'lactose-free': _lactoseFree,
-                  'vegan': _vegan,
-                  'vegetarian': _vegetarian,
-                };
-                widget.saveFilters(filters);
-              },
-              icon: const Icon(Icons.save))
-        ],
       ),
       drawer: const MainDrawer(),
       body: Column(
@@ -63,40 +35,40 @@ class _FiltersScreenState extends State<FiltersScreen> {
             child: ListView(
               children: [
                 SwitchListTile(
-                  value: _glutenFree,
+                  value: appliedFilters!['gluten-free'] ?? false,
                   onChanged: (flag) {
                     setState(() {
-                      _glutenFree = flag;
+                      storeProvider.appliedFilters!['gluten-free'] = flag;
                     });
                   },
-                  title: const Text('Gluten-Free'),
+                  title: const Text('Gluten Free'),
                   subtitle: const Text('Only includes gluten-free meals'),
                 ),
                 SwitchListTile(
-                  value: _lactoseFree,
+                  value: appliedFilters['lactose-free'] ?? false,
                   onChanged: (flag) {
                     setState(() {
-                      _lactoseFree = flag;
+                      storeProvider.appliedFilters!['lactose-free'] = flag;
                     });
                   },
-                  title: const Text('Lactose-Free'),
+                  title: const Text('Lactose Free'),
                   subtitle: const Text('Only includes lactose-free meals'),
                 ),
                 SwitchListTile(
-                  value: _vegan,
+                  value: appliedFilters['vegan'] ?? false,
                   onChanged: (flag) {
                     setState(() {
-                      _vegan = flag;
+                      storeProvider.appliedFilters!['vegan'] = flag;
                     });
                   },
                   title: const Text('Vegan'),
                   subtitle: const Text('Only includes vegan meals'),
                 ),
                 SwitchListTile(
-                  value: _vegetarian,
+                  value: appliedFilters['vegetarian'] ?? false,
                   onChanged: (flag) {
                     setState(() {
-                      _vegetarian = flag;
+                      storeProvider.appliedFilters!['vegetarian'] = flag;
                     });
                   },
                   title: const Text('Vegetarian'),

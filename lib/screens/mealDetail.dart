@@ -1,28 +1,54 @@
+import '../models/store.dart';
+import '../store/index.dart';
 import 'package:flutter/material.dart';
 
 import '../dummy/meals.dart';
 
-class MealDetailScreen extends StatelessWidget {
+class MealDetailScreen extends StatefulWidget {
   static const String routeName = '/mealDetail';
 
-  final Function toggleFavorite;
-  final Function isMealFavorite;
+  const MealDetailScreen({Key? key}) : super(key: key);
 
-  const MealDetailScreen(
-      {Key? key, required this.toggleFavorite, required this.isMealFavorite})
-      : super(key: key);
+  @override
+  State<MealDetailScreen> createState() => _MealDetailScreenState();
+}
+
+class _MealDetailScreenState extends State<MealDetailScreen> {
+  void toggleFavorite(String mealId, Store store) {
+    final index =
+        store.favoriteMeals!.indexWhere((element) => element.id == mealId);
+    if (index == -1) {
+      setState(() {
+        store.favoriteMeals!
+            .add(DUMMY_MEALS.firstWhere((element) => element.id == mealId));
+      });
+    } else {
+      setState(() {
+        store.favoriteMeals!.removeAt(index);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final mealId = ModalRoute.of(context)?.settings.arguments as String;
+    final String mealId = ModalRoute.of(context)?.settings.arguments as String;
+    final store = StoreContainer.of(context);
     final meal = DUMMY_MEALS.firstWhere((element) => element.id == mealId);
-    final isFavorite = isMealFavorite(mealId);
+    final isFavorite =
+        store.favoriteMeals!.any((element) => element.id == mealId);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(meal.title),
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.of(context).pop(meal.id),
+            icon: const Icon(Icons.delete),
+          )
+        ],
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.only(bottom: 20),
         child: Column(
           children: [
             SizedBox(
@@ -53,7 +79,7 @@ class MealDetailScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         child:
             Icon(isFavorite ? Icons.favorite : Icons.favorite_border_outlined),
-        onPressed: () => toggleFavorite(mealId),
+        onPressed: () => toggleFavorite(mealId, store),
       ),
     );
   }
@@ -64,13 +90,13 @@ class BuildItems extends StatelessWidget {
   final List<String> items;
   final bool? showIndex;
   final bool showBackground;
-  const BuildItems(
-      {Key? key,
-      required this.title,
-      required this.items,
-      this.showIndex,
-      this.showBackground = true})
-      : super(key: key);
+  const BuildItems({
+    Key? key,
+    required this.title,
+    required this.items,
+    this.showIndex,
+    this.showBackground = true,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

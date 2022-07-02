@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../models/meal.dart';
-import '../dummy/meals.dart';
+import '../models/store.dart';
+import '../store/index.dart';
 import '../screens/categories.dart';
 import '../screens/mealDetail.dart';
 import '../screens/categoryMeals.dart';
@@ -9,67 +9,14 @@ import '../screens/filters.dart';
 import '../screens/main.dart';
 
 void main() {
-  runApp(const Root());
+  runApp(StoreContainer(
+    store: Store(),
+    child: const Root(),
+  ));
 }
 
-class Root extends StatefulWidget {
+class Root extends StatelessWidget {
   const Root({Key? key}) : super(key: key);
-
-  @override
-  State<Root> createState() => _RootState();
-}
-
-class _RootState extends State<Root> {
-  Map<String, bool> _filters = {
-    'gluten-free': false,
-    'lactose-free': false,
-    'vegan': false,
-    'vegetarian': false,
-  };
-
-  List<Meal> _availableMeals = DUMMY_MEALS;
-  List<Meal> _favoriteMeals = [];
-
-  void _setFilters(Map<String, bool> filterData) {
-    setState(() {
-      _filters = filterData;
-      _availableMeals = DUMMY_MEALS.where(
-        (element) {
-          if (_filters['gluten-free'] != null && !element.isGlutenFree) {
-            return false;
-          }
-          if (_filters['lactose-free'] != null && !element.isLactoseFree) {
-            return false;
-          }
-          if (_filters['vegan'] != null && !element.isVegan) {
-            return false;
-          }
-          if (_filters['vegetarian'] != null && !element.isVegetarian) {
-            return false;
-          }
-          return true;
-        },
-      ).toList();
-    });
-  }
-
-  bool _isMealFavorite(String mealId) {
-    return _favoriteMeals.any((element) => element.id == mealId);
-  }
-
-  void _toggleFavorite(String mealId) {
-    final index = _favoriteMeals.indexWhere((element) => element.id == mealId);
-    if (index == -1) {
-      setState(() {
-        _favoriteMeals
-            .add(DUMMY_MEALS.firstWhere((element) => element.id == mealId));
-      });
-    } else {
-      setState(() {
-        _favoriteMeals.removeAt(index);
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,14 +39,10 @@ class _RootState extends State<Root> {
       // home: const CategoriesScreen(),
       initialRoute: CategoriesScreen.routeName,
       routes: {
-        MainScreen.routeName: (context) =>
-            MainScreen(favoriteMeals: _favoriteMeals),
-        CategoryMealsScreen.routeName: (context) =>
-            CategoryMealsScreen(availableMeals: _availableMeals),
-        MealDetailScreen.routeName: (context) => MealDetailScreen(
-            toggleFavorite: _toggleFavorite, isMealFavorite: _isMealFavorite),
-        FiltersScreen.routeName: (context) =>
-            FiltersScreen(saveFilters: _setFilters, appliedFilters: _filters),
+        MainScreen.routeName: (context) => const MainScreen(),
+        CategoryMealsScreen.routeName: (context) => const CategoryMealsScreen(),
+        MealDetailScreen.routeName: (context) => const MealDetailScreen(),
+        FiltersScreen.routeName: (context) => const FiltersScreen(),
       },
       // onGenerateRoute: (settings) {
       //   // this is a callback, called when there is a routing happens, if there is no route registered for the route name, the returned Route from this function used.

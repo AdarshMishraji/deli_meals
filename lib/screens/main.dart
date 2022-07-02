@@ -8,9 +8,7 @@ import '../models/meal.dart';
 class MainScreen extends StatefulWidget {
   static const routeName = '/';
 
-  final List<Meal> favoriteMeals;
-
-  const MainScreen({Key? key, required this.favoriteMeals}) : super(key: key);
+  const MainScreen({Key? key}) : super(key: key);
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -52,10 +50,7 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     _pages = [
       {'page': const CategoriesScreen(), 'title': 'Categories'},
-      {
-        'page': Favorites(favoriteMeals: widget.favoriteMeals),
-        'title': 'Your Favorites'
-      }
+      {'page': Favorites(), 'title': 'Your Favorites'}
     ];
     super.initState();
   }
